@@ -19,7 +19,7 @@ step "hello-world-sh" {
         action_type = "Octopus.Script"
         properties = {
             Octopus.Action.RunOnServer = "false"
-            Octopus.Action.Script.ScriptBody = "echo \"Hello World\"\n"
+            Octopus.Action.Script.ScriptBody = "echo \"Hello World\"\necho \"-----------\"\n"
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "Bash"
             OctopusUseBundledTooling = "False"
