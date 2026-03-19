@@ -1,5 +1,5 @@
-name = "deploy.api"
-description = "deploy.api process template"
+name = "deploy-api"
+description = "deploy-api process template"
 
 parameter "BuiltIn-TargetTag" {
     display_settings = {

@@ -6,8 +6,11 @@ trap 'rm -rf "${tmpdir}"' EXIT
 
 changed_file="${tmpdir}/changed-files.txt"
 changed_file_fail="${tmpdir}/changed-files-fail.txt"
+changed_file_collision="${tmpdir}/changed-files-collision.txt"
 output_dir="${tmpdir}/generated"
 output_dir_fail="${tmpdir}/generated-fail"
+collision_repo="${tmpdir}/collision-repo"
+collision_output="${tmpdir}/collision-output"
 
 cat >"${changed_file}" <<'EOF'
 deploy.api.sh
@@ -43,3 +46,29 @@ if ./scripts/sync_changed_scripts.sh "${changed_file_fail}" "${output_dir_fail}"
 fi
 
 diff -u tests/fixtures/existing/ambiguous-multiple-bash-actions.ocl "${output_dir_fail}/deploy-api-prod.ocl"
+
+mkdir -p "${collision_repo}" "${collision_output}"
+
+cat >"${changed_file_collision}" <<'EOF'
+deploy.api.sh
+EOF
+
+cat >"${collision_repo}/deploy.api.sh" <<'EOF'
+#!/usr/bin/env bash
+echo "dot"
+EOF
+
+cat >"${collision_repo}/deploy-api.sh" <<'EOF'
+#!/usr/bin/env bash
+echo "dash"
+EOF
+
+if (
+  cd "${collision_repo}"
+  /Users/jwalsh/Projects/ProcessTemplates/scripts/sync_changed_scripts.sh "${changed_file_collision}" "${collision_output}"
+); then
+  echo "expected sync_changed_scripts to fail for normalized template name collision" >&2
+  exit 1
+fi
+
+test ! -e "${collision_output}/deploy.api.ocl"

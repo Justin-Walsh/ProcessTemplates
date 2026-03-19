@@ -5,6 +5,27 @@ changed_files_input="${1:?changed files input required}"
 output_dir="${2:?output directory required}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+check_unique_template_names() {
+  find . -maxdepth 1 -type f -name '*.sh' -print | sed 's#^\./##' | LC_ALL=C sort | awk '
+    {
+      source_name = $0
+      template_name = source_name
+      sub(/\.sh$/, "", template_name)
+      normalized_name = tolower(template_name)
+      gsub(/\./, "-", normalized_name)
+
+      if (normalized_name in seen && seen[normalized_name] != source_name) {
+        printf "duplicate normalized template name '\''%s'\'' for %s and %s\n", normalized_name, seen[normalized_name], source_name > "/dev/stderr"
+        exit 1
+      }
+
+      seen[normalized_name] = source_name
+    }
+  '
+}
+
+check_unique_template_names
+
 while IFS= read -r source_script; do
   if [ ! -f "${source_script}" ]; then
     continue

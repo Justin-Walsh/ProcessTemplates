@@ -6,6 +6,7 @@ output_ocl="${2:?output path required}"
 
 source_name="$(basename "${input_script}")"
 template_name="${source_name%.sh}"
+template_slug="$(printf '%s' "${template_name}" | tr '[:upper:]' '[:lower:]' | tr '.' '-')"
 step_slug="$(printf '%s' "${source_name}" | tr '[:upper:]' '[:lower:]' | tr '.' '-')"
 
 escape_script_body() {
@@ -26,8 +27,8 @@ generate_new_ocl() {
   mkdir -p "$(dirname "${output_ocl}")"
 
   cat >"${output_ocl}" <<EOF
-name = "${template_name}"
-description = "${template_name} process template"
+name = "${template_slug}"
+description = "${template_slug} process template"
 
 parameter "BuiltIn-TargetTag" {
     display_settings = {
