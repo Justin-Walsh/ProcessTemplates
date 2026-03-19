@@ -1,0 +1,29 @@
+name = "hello-world"
+description = "hello-world process template"
+
+parameter "BuiltIn-TargetTag" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = ""
+}
+
+step "hello-world-sh" {
+    name = "hello-world.sh"
+    properties = {
+        Octopus.Action.TargetRoles = "#{BuiltIn-TargetTag}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "echo \"Hello World\"\n"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
