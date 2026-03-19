@@ -1,21 +1,42 @@
 # ProcessTemplates
-Octopus ProcessTemplate automation sandbox
+Octopus Process Template automation sandbox.
 
-## OCL Sync Contract
+## What This PoC Does
 
-Root-level `*.sh` changes trigger GitHub Actions generation for matching OCL files under `.octopus/process-templates/`.
+This repository is a proof of concept for keeping simple deployment scripts and Octopus process templates in sync.
 
-For new templates, the naming contract is:
+When a root-level Bash script changes, the automation generates or updates a matching `.ocl` file under `.octopus/process-templates/`.
 
-- `deploy.api.sh` -> `.octopus/process-templates/deploy-api.ocl`
-- `deploy-api-prod.sh` -> `.octopus/process-templates/deploy-api-prod.ocl`
-- top-level template name = source filename without `.sh`, lowercased, with `.` replaced by `-`
-- step slug = source filename lowercased with `.` replaced by `-`
+Examples:
 
-The sync step rejects root-level `*.sh` files that would normalize to the same top-level template name, such as `deploy.api.sh` and `deploy-api.sh`.
+- `deploy.api.sh` becomes `.octopus/process-templates/deploy-api.ocl`
+- `deploy-api-prod.sh` becomes `.octopus/process-templates/deploy-api-prod.ocl`
 
-If the target `.ocl` file already exists, the generator preserves the existing file and updates only `Octopus.Action.Script.ScriptBody` inside a single unambiguous Bash `Octopus.Script` action. Parameters, descriptions, custom properties, and surrounding structure are left unchanged.
+For new templates, the generated OCL uses a normalized Octopus-safe name:
 
-Generation is validator-first. The workflow only opens or updates an automation PR after generated or updated OCL passes the repo-local structural validator.
+- the top-level template name is lowercased and `.` becomes `-`
+- the step slug is also lowercased and `.` becomes `-`
+- the visible step name still keeps the original script filename
 
-The current validator checks the repository's accepted OCL shape and escaping rules, but it does not yet prove Octopus acceptance against an authoritative parser or live Octopus environment.
+## How It Works
+
+1. A changed root-level `*.sh` file is picked up by the sync script.
+2. The script is converted into an Octopus `Octopus.Script` step with the Bash body stored inline.
+3. If the target `.ocl` file does not exist yet, a new template is created.
+4. If the target `.ocl` file already exists, only the `Octopus.Action.Script.ScriptBody` is replaced.
+
+That means existing parameters, descriptions, custom properties, and surrounding OCL structure are preserved.
+
+## Failsafes
+
+- The generated `.ocl` filename is normalized so Octopus does not see invalid slugs like `deploy.api`.
+- The sync fails if two root-level scripts would normalize to the same template name, such as `deploy.api.sh` and `deploy-api.sh`.
+- The sync fails if an existing `.ocl` file cannot be updated safely and unambiguously.
+- Generated output must pass the repo-local OCL validator before the automation would open or update a PR.
+
+## Current Limits
+
+- This is still a PoC, not a full production workflow.
+- Only root-level `*.sh` files are in scope.
+- The validator checks the repo's accepted OCL shape and escaping rules.
+- It does not yet prove that Octopus will accept every generated file in a live environment.
