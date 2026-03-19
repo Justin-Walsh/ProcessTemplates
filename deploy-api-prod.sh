@@ -3,6 +3,7 @@
 set -euo pipefail
 
 echo 'Starting prod deploy'
+echo '--------------------'
 
 printf 'path=%s\n' "/srv/apps/current"
 printf 'literal-backslash=%s\n' "\\"
