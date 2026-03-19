@@ -1,0 +1,29 @@
+name = "deploy-api-prod"
+description = "deploy-api-prod process template"
+
+parameter "BuiltIn-TargetTag" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = ""
+}
+
+step "deploy-api-prod-sh" {
+    name = "deploy-api-prod.sh"
+    properties = {
+        Octopus.Action.TargetRoles = "#{BuiltIn-TargetTag}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "#!/usr/bin/env bash\n\nset -euo pipefail\n\necho 'Starting prod deploy'\n\nprintf 'path=%s\\n' \"/srv/apps/current\"\nprintf 'literal-backslash=%s\\n' \"\\\\\"\nprintf 'quoted=%s\\n' \"\\\"double\\\" and 'single'\"\n\nif [ -n \"${REGION:-}\" ]; then\n echo \"Region: ${REGION}\"\nfi\n\ncat <<'EOF'\nkeep #{BuiltIn.Environment.Name} literal\nkeep $(hostname) literal in source until runtime\nEOF\n"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
