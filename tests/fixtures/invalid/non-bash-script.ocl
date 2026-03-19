@@ -1,0 +1,18 @@
+name = "non-bash"
+description = "Non bash script"
+
+step "powershell-step" {
+    name = "PowerShell Step"
+    properties = {}
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.Script.ScriptBody = "Write-Host \"hello\"\n"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "PowerShell"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}

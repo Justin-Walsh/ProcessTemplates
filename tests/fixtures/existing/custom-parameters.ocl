@@ -1,0 +1,36 @@
+name = "deploy-api-prod"
+description = "Managed with extra parameters"
+
+parameter "BuiltIn-TargetTag" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = ""
+}
+
+parameter "Region" {
+    default_value = "us-east-1"
+    help_text = "Deployment region"
+    label = "Region"
+}
+
+step "custom-step" {
+    name = "Deploy API Prod"
+    properties = {
+        Octopus.Action.TargetRoles = "#{BuiltIn-TargetTag}"
+        Octopus.Action.ConditionVariableExpression = "#{if Region == \"us-east-1\"}true#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "echo \"old body\"\n"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}

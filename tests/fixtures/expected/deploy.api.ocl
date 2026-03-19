@@ -1,0 +1,29 @@
+name = "deploy.api"
+description = "deploy.api process template"
+
+parameter "BuiltIn-TargetTag" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = ""
+}
+
+step "deploy-api-sh" {
+    name = "deploy.api.sh"
+    properties = {
+        Octopus.Action.TargetRoles = "#{BuiltIn-TargetTag}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "#!/usr/bin/env bash\nset -euo pipefail\n\necho \"Deploying API\"\necho \"Version: ${VERSION:-local}\"\n"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}

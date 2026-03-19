@@ -1,0 +1,29 @@
+name = "keep-custom-name"
+description = "Do not replace this description"
+
+parameter "Environment" {
+    default_value = "Production"
+    help_text = "Environment selector"
+    label = "Environment"
+}
+
+step "custom-prod-step" {
+    name = "Custom Prod Step"
+    properties = {
+        Octopus.Action.TargetRoles = "#{Environment}"
+        Octopus.Action.EnabledFeatures = "Octopus.Features.Custom"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "true"
+            Octopus.Action.Script.ScriptBody = "#!/usr/bin/env bash\n\nset -euo pipefail\n\necho 'Starting prod deploy'\n\nprintf 'path=%s\\n' \"/srv/apps/current\"\nprintf 'literal-backslash=%s\\n' \"\\\\\"\nprintf 'quoted=%s\\n' \"\\\"double\\\" and 'single'\"\n\nif [ -n \"${REGION:-}\" ]; then\n echo \"Region: ${REGION}\"\nfi\n\ncat <<'EOF'\nkeep #{BuiltIn.Environment.Name} literal\nkeep $(hostname) literal in source until runtime\nEOF\n"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            Octopus.Action.CustomProperty = "preserve-me"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = "CustomPool"
+    }
+}

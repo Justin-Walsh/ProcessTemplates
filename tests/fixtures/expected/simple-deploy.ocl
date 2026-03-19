@@ -1,0 +1,29 @@
+name = "simple-deploy"
+description = "simple-deploy process template"
+
+parameter "BuiltIn-TargetTag" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = ""
+}
+
+step "simple-deploy-sh" {
+    name = "simple-deploy.sh"
+    properties = {
+        Octopus.Action.TargetRoles = "#{BuiltIn-TargetTag}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "#!/usr/bin/env bash\necho \"Hello World\"\n"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}

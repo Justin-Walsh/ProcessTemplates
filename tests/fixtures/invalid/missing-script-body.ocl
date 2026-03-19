@@ -1,0 +1,25 @@
+name = "missing-script-body"
+description = "Missing script body"
+
+parameter "Region" {
+    default_value = "us-east-1"
+    help_text = "Deployment region"
+    label = "Region"
+}
+
+step "custom-step" {
+    name = "Deploy API Prod"
+    properties = {
+        Octopus.Action.TargetRoles = "#{Region}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
