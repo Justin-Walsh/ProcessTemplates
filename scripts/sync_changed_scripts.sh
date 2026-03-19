@@ -5,6 +5,10 @@ changed_files_input="${1:?changed files input required}"
 output_dir="${2:?output directory required}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+normalize_template_name() {
+  printf '%s' "${1}" | tr '[:upper:]' '[:lower:]' | tr '.' '-'
+}
+
 check_unique_template_names() {
   find . -maxdepth 1 -type f -name '*.sh' -print | sed 's#^\./##' | LC_ALL=C sort | awk '
     {
@@ -31,7 +35,8 @@ while IFS= read -r source_script; do
     continue
   fi
 
-  target_ocl="${output_dir}/$(basename "${source_script%.sh}").ocl"
+  template_name="$(basename "${source_script%.sh}")"
+  target_ocl="${output_dir}/$(normalize_template_name "${template_name}").ocl"
 
   if ! "${script_dir}/generate_ocl.sh" "${source_script}" "${target_ocl}"; then
     printf 'failed to generate OCL for %s -> %s\n' "${source_script}" "${target_ocl}" >&2

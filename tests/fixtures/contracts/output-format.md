@@ -1,6 +1,6 @@
 # OCL Output Contract
 
-- Output file path: `.octopus/process-templates/<source-basename-without-.sh>.ocl`
+- Output file path: `.octopus/process-templates/<normalized-top-level-name>.ocl`
 - Top-level `name`: source basename without `.sh`, lowercased, with every `.` replaced by `-`
 - Top-level `description`: `<top-level name> process template`
 - Step `name`: source filename including `.sh`

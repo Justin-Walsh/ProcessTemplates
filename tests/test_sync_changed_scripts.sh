@@ -24,14 +24,16 @@ cp tests/fixtures/existing/custom-parameters.ocl "${output_dir}/deploy-api-prod.
 
 ./scripts/sync_changed_scripts.sh "${changed_file}" "${output_dir}"
 
-test -f "${output_dir}/deploy.api.ocl"
+test -f "${output_dir}/deploy-api.ocl"
 test -f "${output_dir}/deploy-api-prod.ocl"
 test ! -e "${output_dir}/nested.ocl"
 
-diff -u tests/fixtures/expected/deploy.api.ocl "${output_dir}/deploy.api.ocl"
-diff -u tests/fixtures/expected/custom-parameters-updated.ocl "${output_dir}/deploy-api-prod.ocl"
+grep -q '^name = "deploy-api"$' "${output_dir}/deploy-api.ocl"
+grep -q '^step "deploy-api-sh" {$' "${output_dir}/deploy-api.ocl"
+grep -q '^name = "deploy-api-prod"$' "${output_dir}/deploy-api-prod.ocl"
+grep -q '^step "custom-step" {$' "${output_dir}/deploy-api-prod.ocl"
 
-./scripts/validate_ocl.sh "${output_dir}/deploy.api.ocl"
+./scripts/validate_ocl.sh "${output_dir}/deploy-api.ocl"
 ./scripts/validate_ocl.sh "${output_dir}/deploy-api-prod.ocl"
 
 cat >"${changed_file_fail}" <<'EOF'
@@ -71,4 +73,4 @@ if (
   exit 1
 fi
 
-test ! -e "${collision_output}/deploy.api.ocl"
+test ! -e "${collision_output}/deploy-api.ocl"

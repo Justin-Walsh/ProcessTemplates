@@ -7,7 +7,7 @@ Root-level `*.sh` changes trigger GitHub Actions generation for matching OCL fil
 
 For new templates, the naming contract is:
 
-- `deploy.api.sh` -> `.octopus/process-templates/deploy.api.ocl`
+- `deploy.api.sh` -> `.octopus/process-templates/deploy-api.ocl`
 - `deploy-api-prod.sh` -> `.octopus/process-templates/deploy-api-prod.ocl`
 - top-level template name = source filename without `.sh`, lowercased, with `.` replaced by `-`
 - step slug = source filename lowercased with `.` replaced by `-`
